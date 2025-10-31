@@ -31,7 +31,7 @@ The schedule aligns with official market hours: the Saudi Stock Exchange (Tadawu
 
 Environment variable | Purpose | Default
 --- | --- | ---
-`DISCORD_WEBHOOK_URL` | Discord webhook to receive the daily summary | *(required for notifications)*
+`DISCORD_WEBHOOK_URL` | Discord webhook to receive the daily summary | Defaults to the provided educational webhook
 `SA_TICKERS` | Comma-separated Tadawul tickers (e.g., `2222.SR,2010.SR,1180.SR`) | `2222.SR,2010.SR,1180.SR`
 `US_TICKERS` | Comma-separated U.S. tickers (e.g., `AAPL,MSFT,SPY`) | `AAPL,MSFT,SPY`
 `BASE_CAPITAL` | Educational capital base used to scale suggested position sizes | `1000`
@@ -49,7 +49,7 @@ All other behavior (feature engineering, thresholds, tickers) can be customized 
    docker build -t saudi-us-predictor .
    ```
 
-2. Run the container, providing your Discord webhook:
+2. Run the container, optionally overriding the default Discord webhook:
 
    ```bash
    docker run \
@@ -60,6 +60,8 @@ All other behavior (feature engineering, thresholds, tickers) can be customized 
    ```
 
    The container starts the scheduler and checks every minute whether the Saudi or U.S. market has just opened.  When an open window is detected on a valid trading day, the system trains models for each configured ticker and posts a consolidated Discord message.
+
+   > If `DISCORD_WEBHOOK_URL` is omitted, the container posts to the default educational webhook baked into `predictor.py`.
 
 3. (Optional) Force an immediate prediction cycle on launch:
 

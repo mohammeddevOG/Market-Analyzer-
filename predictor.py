@@ -7,7 +7,8 @@ buy/sell/hold signals.  The script is designed to be run inside Docker with the
 
 Configuration is done through environment variables:
 
-- ``DISCORD_WEBHOOK_URL``: Discord webhook for notifications (required to post).
+- ``DISCORD_WEBHOOK_URL``: Discord webhook for notifications (optional –
+  defaults to the provided educational webhook).
 - ``SA_TICKERS``: Comma-separated tickers for the Saudi market (default ``2222.SR,2010.SR``).
 - ``US_TICKERS``: Comma-separated tickers for the U.S. market (default ``AAPL,MSFT``).
 - ``BASE_CAPITAL``: Notional capital used when scaling the suggested position
@@ -51,6 +52,12 @@ from sklearn.preprocessing import StandardScaler
 # environment variables.
 DEFAULT_US_TICKERS = ("AAPL", "MSFT", "SPY")
 DEFAULT_SA_TICKERS = ("2222.SR", "2010.SR", "1180.SR")
+
+# Default Discord webhook provided for educational deployments.  This can be
+# overridden by setting the DISCORD_WEBHOOK_URL environment variable.
+DEFAULT_DISCORD_WEBHOOK = (
+    "https://discord.com/api/webhooks/1433701583232700486/_m8bWy7N6fW9sNjM_Xu8xRwBSiV2CtQyznCtOTzoRBVWQPVawUfE9-Xzm-2M4bj-jfPl"
+)
 
 # Constants for the exchange opening times.
 SAUDI_MARKET_TZ = "Asia/Riyadh"
@@ -345,10 +352,7 @@ def format_signal_message(
 
 def post_to_discord(message: str) -> None:
     """Send the formatted message to Discord if a webhook is configured."""
-    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
-    if not webhook_url:
-        logging.warning("DISCORD_WEBHOOK_URL not set; skipping Discord notification.")
-        return
+    webhook_url = os.getenv("DISCORD_WEBHOOK_URL") or DEFAULT_DISCORD_WEBHOOK
     payload = {"content": message}
     try:
         response = requests.post(webhook_url, json=payload, timeout=10)
